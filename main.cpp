@@ -23,8 +23,9 @@ std::ostream& operator<<(std::ostream& os, const Data& d) {
 }
 
 void swap_lock_quard (Data& lhs, Data& rhs) {
-    std::lock_guard<std::mutex> lg_lhs(lhs.m_);
-    std::lock_guard<std::mutex> lg_rhs(rhs.m_);
+    std::lock(lhs.m_, rhs.m_);
+    std::lock_guard<std::mutex> lg_lhs(lhs.m_, std::adopt_lock);
+    std::lock_guard<std::mutex> lg_rhs(rhs.m_, std::adopt_lock);
     std::swap(lhs.x_, rhs.x_);
     std::swap(lhs.y_, rhs.y_);
 }
@@ -36,8 +37,9 @@ void swap_scoped_lock (Data& lhs, Data& rhs) {
 }
 
 void swap_unique_lock (Data& lhs, Data& rhs) {
-    std::unique_lock<std::mutex> lg_lhs(lhs.m_);
-    std::unique_lock<std::mutex> lg_rhs(rhs.m_);
+    std::unique_lock<std::mutex> lg_lhs(lhs.m_, std::defer_lock);
+    std::unique_lock<std::mutex> lg_rhs(rhs.m_, std::defer_lock);
+    std::lock(lg_lhs, lg_rhs);
     std::swap(lhs.x_, rhs.x_);
     std::swap(lhs.y_, rhs.y_);
 }
